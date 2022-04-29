@@ -11,6 +11,10 @@ let user2 = {
   username: 'sade',
   password: '384749'
 }
+let user3 = {
+  username: '',
+  password: '384749'
+}
 
 beforeAll(async () => {
   await db.migrate.rollback()
@@ -28,6 +32,7 @@ test('sanity', () => {
 })
 
 describe('[POST] /api/auth/register', () => {
+  
   test('Creates new user', async () => {
     let res = await request(server).post('/api/auth/register').send(user1)
     let response = await request(server).post('/api/auth/register').send(user2)
@@ -44,16 +49,17 @@ describe('[POST] /api/auth/register', () => {
   })
 })
 
-// describe('[POST] /api/auth/login', () => {
-//   test('Creates new user', async () => {
-//     await request(server).post('/api/auth/login').send(user1)
-//     let res = await db('users').where('username', 'albert').first()
-//     expect(res).toMatchObject({username: 'albert'})
-//   })
+describe('[POST] /api/auth/login', () => {
 
-//   test('Creates new user', async () => {
-//     await request(server).post('/api/auth/login').send(user1)
-//     let res = await db('users').where('username', 'albert').first()
-//     expect(res).toMatchObject({username: 'albert'})
-//   })
-// })
+  test('If login is successful, displays 200 status', async () => {
+    await request(server).post('/api/auth/register').send(user2)
+    let res = await request(server).post('/api/auth/login').send(user2)
+    expect(res.status).toBe(200)
+  })
+
+  test('If login fails, displays message "Invalid credentials"', async () => {
+    await request(server).post('/api/auth/register').send(user1)
+    let res = await request(server).post('/api/auth/login').send(user2)
+    expect(res.body.message).toBe('Invalid credentials')
+  })
+})
