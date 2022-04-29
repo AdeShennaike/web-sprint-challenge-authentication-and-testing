@@ -13,14 +13,15 @@ async function checkUsernameInUse(req, res, next) {
     }
   }
   
-  async function checkUsernameExists_passwordValid(req, res, next) {
+  async function checkUsernameExists(req, res, next) {
     try{
-      const [checkUser] = await Users.findBy({username: req.body.username})
-      if(checkUser || checkUser.password === req.body.password){
-        next()
-      }else{
-        next({status: 401, message: "Invalid credentials"})
-      }
+        const [user] = await Users.findBy({username: req.body.username})
+        req.user = user
+        if(user){
+            next()
+        }else{
+            next({status: 401, message: "Invalid credentials"})
+        }
     }catch(err){
       next(err)
     }
@@ -36,6 +37,6 @@ async function checkUsernameInUse(req, res, next) {
 
   module.exports = {
     checkUsernameInUse,
-    checkUsernameExists_passwordValid,
+    checkUsernameExists,
     checkName_Password
   }

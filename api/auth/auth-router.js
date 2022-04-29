@@ -1,10 +1,18 @@
 const router = require('express').Router();
 const Users = require('../users/user-model')
-const {checkUsernameInUse, checkUsernameExists_passwordValid, checkName_Password} = require('../middleware/auth-middleware')
+const {checkUsernameInUse, checkUsernameExists, checkName_Password} = require('../middleware/auth-middleware')
 const bcrypt = require('bcryptjs')
 const magicToken = require('./auth-token-builder')
 
 router.post('/register', checkUsernameInUse, checkName_Password, async (req, res, next) => {
+  try{
+    const {username, password} = req.body
+    const hash = bcrypt.hashSync(password, 8)
+    const newUser = await Users.add({ username, password: hash })
+    res.status(201).json(newUser)
+  }catch(err){
+    next(err)
+  }
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -30,13 +38,19 @@ router.post('/register', checkUsernameInUse, checkName_Password, async (req, res
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
-  const {username, password} = req.body
-  const hash = bcrypt.hashSync(password, 8)
-  const newUser = await Users.add
- next()
 });
 
-router.post('/login', checkName_Password, async (req, res, next) => {
+router.post('/login', checkUsernameExists, checkName_Password, async (req, res, next) => {
+  try{
+    if(bcrypt.compareSync(req.body.password, req.user.password)){
+      const token = magicToken(req.user)
+      res.json({message: `welcome, ${req.user.username}`, token})
+      }else{
+        next({status: 401, message: "Invalid credentials"})
+      }
+    }catch(err){
+      next(err)
+    }
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -60,9 +74,6 @@ router.post('/login', checkName_Password, async (req, res, next) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
-    const {username, password} = req.body
-    bcrypt.compareSync
-next()
 });
 
 module.exports = router;
