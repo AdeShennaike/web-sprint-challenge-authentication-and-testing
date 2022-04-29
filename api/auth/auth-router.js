@@ -3,11 +3,12 @@ const Users = require('../users/user-model')
 const {checkUsernameInUse, checkUsernameExists, checkName_Password} = require('../middleware/auth-middleware')
 const bcrypt = require('bcryptjs')
 const magicToken = require('./auth-token-builder')
+const {BCRYPT_ROUNDS} = require('../secrets/secrets')
 
 router.post('/register', checkUsernameInUse, checkName_Password, async (req, res, next) => {
   try{
     const {username, password} = req.body
-    const hash = bcrypt.hashSync(password, 8)
+    const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS)
     const newUser = await Users.add({ username, password: hash })
     res.status(201).json(newUser)
   }catch(err){
