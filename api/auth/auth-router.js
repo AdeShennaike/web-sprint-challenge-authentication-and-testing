@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs')
 const magicToken = require('./auth-token-builder')
 const {BCRYPT_ROUNDS} = require('../secrets/secrets')
 
-router.post('/register', checkUsernameInUse, checkName_Password, async (req, res, next) => {
+router.post('/register', checkName_Password, checkUsernameInUse, async (req, res, next) => {
   try{
     const {username, password} = req.body
     const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS)
