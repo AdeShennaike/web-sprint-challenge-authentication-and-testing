@@ -41,7 +41,7 @@ router.post('/register', checkName_Password, checkUsernameInUse, async (req, res
   */
 });
 
-router.post('/login', checkUsernameExists, checkName_Password, async (req, res, next) => {
+router.post('/login', checkName_Password, checkUsernameExists, async (req, res, next) => {
   try{
     if(bcrypt.compareSync(req.body.password, req.user.password)){
       const token = magicToken(req.user)
